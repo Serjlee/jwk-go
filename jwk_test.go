@@ -12,17 +12,19 @@ import (
 )
 
 var testKid = "QzQ4QzExMzNENkJCMThDNjNCN0ZEQjQwQkEwNUFFMzY1NDU5QzcxNA"
-var testKey = "MIIDCzCCAfOgAwIBAgIJDLLYwRgUea6sMA0GCSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGHRvcHNvbHV0aW9uLmV1LmF1dGgwLmNvbTAeFw0xODEwMTExNTQwMzBaFw0zMjA2MTkxNTQwMzBaMCMxITAfBgNVBAMTGHRvcHNvbHV0aW9uLmV1LmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN5PN+xxZOmFWWztp3xFNjnjCTMAu+ZBSCj9h5do6VUt22uPlshjAWCA9BnrbBMhdGR38Eg8XXpMntvXFJvw9I0dvqdmbBY/dM7TwDc8rOz4qsXCtuJSnhrOex/FemdsZ15hs3LAHfddKKo8tZ2Hs1fX+K90YdFMURopjjL9F1jXGGvIs1Zi9yZTKYOVFbX0BykzT9JkSx44T7puvzUqmBUJyrdpXalouNuE6iruFm7WdlMoK2LOi9yCAwUa5eNMgLxRnQbk6QvCvgnBfWcTQ6n4Y3UzK+RgJ28UGRhs03m9Pfov9kov7ZSruinG20inQ9xeSbBxCHNy3r0RSkiz9XcCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU6wLAfnF3rypEQML/n6BmpoggxfowDgYDVR0PAQH/BAQDAgKEMA0GCSqGSIb3DQEBCwUAA4IBAQCcvCc1chcjFcQ75PtcTqC9AiDrmryJWyj9apXbAwaTV47KAkN5PvA14OKcQBTlJZXRcRq/QAimMLZna3au6lsr+/SkeqE2n26j9eG3ZUYb8HQ+mHKMzsqcBTMLFsMeQ0f7Y18EakYu6kGE79jdgjr96TuurTwMKxc2dbkivSs3Zi+fQoZrjQ0EqNuCCNiZUA9MbcHrYB18mk31RvMVARJMdY+eQeeR2rSFoSDnn/DO4Oy745c/VOIq7Cigh/GAdH2M5+Jv6SalqH2OiwMlfH72pyd6j+OjfwtI6cyY8BRV4itNCvp2Pf9wyUPjm1Lq7YAVWHySNDPKao2OVn9Af4/A"
+var testX5c = "MIIDCzCCAfOgAwIBAgIJDLLYwRgUea6sMA0GCSqGSIb3DQEBCwUAMCMxITAfBgNVBAMTGHRvcHNvbHV0aW9uLmV1LmF1dGgwLmNvbTAeFw0xODEwMTExNTQwMzBaFw0zMjA2MTkxNTQwMzBaMCMxITAfBgNVBAMTGHRvcHNvbHV0aW9uLmV1LmF1dGgwLmNvbTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAN5PN+xxZOmFWWztp3xFNjnjCTMAu+ZBSCj9h5do6VUt22uPlshjAWCA9BnrbBMhdGR38Eg8XXpMntvXFJvw9I0dvqdmbBY/dM7TwDc8rOz4qsXCtuJSnhrOex/FemdsZ15hs3LAHfddKKo8tZ2Hs1fX+K90YdFMURopjjL9F1jXGGvIs1Zi9yZTKYOVFbX0BykzT9JkSx44T7puvzUqmBUJyrdpXalouNuE6iruFm7WdlMoK2LOi9yCAwUa5eNMgLxRnQbk6QvCvgnBfWcTQ6n4Y3UzK+RgJ28UGRhs03m9Pfov9kov7ZSruinG20inQ9xeSbBxCHNy3r0RSkiz9XcCAwEAAaNCMEAwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQU6wLAfnF3rypEQML/n6BmpoggxfowDgYDVR0PAQH/BAQDAgKEMA0GCSqGSIb3DQEBCwUAA4IBAQCcvCc1chcjFcQ75PtcTqC9AiDrmryJWyj9apXbAwaTV47KAkN5PvA14OKcQBTlJZXRcRq/QAimMLZna3au6lsr+/SkeqE2n26j9eG3ZUYb8HQ+mHKMzsqcBTMLFsMeQ0f7Y18EakYu6kGE79jdgjr96TuurTwMKxc2dbkivSs3Zi+fQoZrjQ0EqNuCCNiZUA9MbcHrYB18mk31RvMVARJMdY+eQeeR2rSFoSDnn/DO4Oy745c/VOIq7Cigh/GAdH2M5+Jv6SalqH2OiwMlfH72pyd6j+OjfwtI6cyY8BRV4itNCvp2Pf9wyUPjm1Lq7YAVWHySNDPKao2OVn9Af4/A"
+var testKey = Key{
+	Kty: "RSA",
+	Alg: "RS256",
+	Use: "sig",
+	N:   "3k837HFk6YVZbO2nfEU2OeMJMwC75kFIKP2Hl2jpVS3ba4-WyGMBYID0GetsEyF0ZHfwSDxdekye29cUm_D0jR2-p2ZsFj90ztPANzys7PiqxcK24lKeGs57H8V6Z2xnXmGzcsAd910oqjy1nYezV9f4r3Rh0UxRGimOMv0XWNcYa8izVmL3JlMpg5UVtfQHKTNP0mRLHjhPum6_NSqYFQnKt2ldqWi424TqKu4WbtZ2UygrYs6L3IIDBRrl40yAvFGdBuTpC8K-CcF9ZxNDqfhjdTMr5GAnbxQZGGzTeb09-i_2Si_tlKu6KcbbSKdD3F5JsHEIc3LevRFKSLP1dw",
+	E:   "AQAB",
+	X5c: []string{testX5c},
+	Kid: testKid,
+}
 
 func getTestCerts() (*Certs, error) {
-	return parseCerts(&jwks{Keys: []jwk{
-		{
-			Kty: "RSA",
-			Alg: "RS256",
-			Use: "sig",
-			X5c: []string{testKey},
-			Kid: testKid,
-		}}}, 10800*time.Second)
+	return parseCerts(&jwks{Keys: []Key{testKey}}, 10800*time.Second)
 }
 func TestParseCerts(t *testing.T) {
 	parsedCerts, err := getTestCerts()
@@ -33,7 +35,7 @@ func TestParseCerts(t *testing.T) {
 
 	expectedCerts := &Certs{
 		Keys: map[string]Key{
-			testKid: Key(testKey),
+			testKid: testKey,
 		},
 		Expiry: time.Now().Add(time.Second * 10800),
 	}
@@ -99,7 +101,7 @@ func TestGetKey(t *testing.T) {
 	token := jwt.JSONWebToken{Headers: []jose.Header{jose.Header{KeyID: testKid}}}
 
 	key, err := j.GetKey(&token)
-	if key.PEM() != withPEMHeaders(testKey) {
+	if key.PEM() != withPEMHeaders(testX5c) {
 		t.Fatal(errors.New("token mismatch"))
 	}
 }
@@ -116,7 +118,7 @@ func equalsRSAKeys(a, b map[string]Key, id string) error {
 		return errors.New("key " + id + " does not exists in b")
 	}
 
-	if key != key2 {
+	if key.PEM() != key2.PEM() {
 		return errors.New("key " + id + " is different")
 	}
 	return nil

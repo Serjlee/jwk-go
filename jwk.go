@@ -37,7 +37,10 @@
 package jwk
 
 import (
+	"crypto/rsa"
+	"encoding/base64"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -47,27 +50,28 @@ import (
 	"gopkg.in/square/go-jose.v2/jwt"
 )
 
-// Key is a simple RSA public key
-type Key string
-
-// PEM adds the PEM headers to the given key
-func (k Key) PEM() string {
-	return "-----BEGIN CERTIFICATE-----\n" + string(k) + "\n-----END CERTIFICATE-----"
-}
-
 // Certs holds a map of KeyID-RSA public key and their expiration time
 type Certs struct {
 	Keys   map[string]Key
 	Expiry time.Time
 }
 
-// jwks maps a JSON Web Key Store to a struct
-type jwks struct {
-	Keys []jwk `json:"keys"`
+// ToSlice returns the keys in a slice
+func (c Certs) ToSlice() []Key {
+	keys := []Key{}
+	for _, v := range c.Keys {
+		keys = append(keys, v)
+	}
+	return keys
 }
 
-// jwk maps a JSON Web Key to a struct
-type jwk struct {
+// jwks maps a JSON Web Key Store to a struct
+type jwks struct {
+	Keys []Key `json:"keys"`
+}
+
+// Key maps a JSON Web Key to a struct
+type Key struct {
 	// alg is the algorithm: it's currently ignored: only RSA is supported
 	Alg string   `json:"alg"`
 	Kty string   `json:"kty"`
@@ -76,6 +80,35 @@ type jwk struct {
 	N   string   `json:"n"`
 	E   string   `json:"e"`
 	X5c []string `json:"x5c"`
+}
+
+// Empty tells if the struct is empty
+func (k Key) Empty() bool {
+	return k.Alg == ""
+}
+
+// PEM adds the PEM headers to the given key
+func (k Key) PEM() string {
+	if len(k.X5c) < 1 {
+		return ""
+	}
+	return "-----BEGIN CERTIFICATE-----\n" + k.X5c[0] + "\n-----END CERTIFICATE-----"
+}
+
+// RSA returns the key as an rsa.PublicKey
+func (k Key) RSA() *rsa.PublicKey {
+	n, err := base64.RawURLEncoding.DecodeString(k.N)
+	if err != nil {
+		panic(err)
+	}
+	e, err := base64.RawURLEncoding.DecodeString(k.E)
+	if err != nil {
+		panic(err)
+	}
+	return &rsa.PublicKey{
+		N: new(big.Int).SetBytes(n),
+		E: int(new(big.Int).SetBytes(e).Int64()),
+	}
 }
 
 // JSONWebKeys fetches and caches RSA public keys from a given JSON Web Key Store
@@ -131,7 +164,7 @@ func (j *JSONWebKeys) GetKey(token *jwt.JSONWebToken) (Key, error) {
 		}
 	}
 
-	if cert == "" {
+	if cert.Empty() {
 		return cert, errors.New("Unable to find the appropriate key.")
 	}
 
@@ -183,7 +216,7 @@ func parseCerts(res *jwks, cacheAge time.Duration) (*Certs, error) {
 	keys := map[string]Key{}
 	for _, key := range res.Keys {
 		if key.Use == "sig" && key.Kty == "RSA" {
-			keys[key.Kid] = Key(key.X5c[0])
+			keys[key.Kid] = key
 		}
 	}
 	return &Certs{
