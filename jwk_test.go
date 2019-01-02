@@ -32,8 +32,8 @@ func TestParseCerts(t *testing.T) {
 	}
 
 	expectedCerts := &Certs{
-		Keys: map[string]string{
-			testKid: testKey,
+		Keys: map[string]Key{
+			testKid: Key(testKey),
 		},
 		Expiry: time.Now().Add(time.Second * 10800),
 	}
@@ -99,12 +99,12 @@ func TestGetKey(t *testing.T) {
 	token := jwt.JSONWebToken{Headers: []jose.Header{jose.Header{KeyID: testKid}}}
 
 	key, err := j.GetKey(&token)
-	if string(key) != withPEMHeaders(testKey) {
+	if key.PEM() != withPEMHeaders(testKey) {
 		t.Fatal(errors.New("token mismatch"))
 	}
 }
 
-func equalsRSAKeys(a, b map[string]string, id string) error {
+func equalsRSAKeys(a, b map[string]Key, id string) error {
 
 	key, ok := a[id]
 	if !ok {

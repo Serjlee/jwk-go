@@ -31,6 +31,8 @@
 // 	}
 //  // that's your public key
 // 	fmt.Println(string(key))
+// 	// you can use an helper function to get it with PEM headers
+// 	fmt.Println(key.PEM())
 // }
 package jwk
 
@@ -45,9 +47,17 @@ import (
 	"gopkg.in/square/go-jose.v2/jwt"
 )
 
+// Key is a simple RSA public key
+type Key string
+
+// PEM adds the PEM headers to the given key
+func (k Key) PEM() string {
+	return "-----BEGIN CERTIFICATE-----\n" + string(k) + "\n-----END CERTIFICATE-----"
+}
+
 // Certs holds a map of KeyID-RSA public key and their expiration time
 type Certs struct {
-	Keys   map[string]string
+	Keys   map[string]Key
 	Expiry time.Time
 }
 
@@ -108,24 +118,24 @@ func (j *JSONWebKeys) GetKeys() (*Certs, error) {
 }
 
 // GetCertificate finds a matching cert for the given JWT
-func (j *JSONWebKeys) GetKey(token *jwt.JSONWebToken) ([]byte, error) {
+func (j *JSONWebKeys) GetKey(token *jwt.JSONWebToken) (Key, error) {
+	var cert Key
 	certs, err := j.GetKeys()
 	if err != nil {
-		return nil, err
+		return cert, err
 	}
-	var cert string
 
 	for _, h := range token.Headers {
 		if key, ok := certs.Keys[h.KeyID]; ok {
-			cert = withPEMHeaders(key)
+			cert = key
 		}
 	}
 
 	if cert == "" {
-		return nil, errors.New("Unable to find the appropriate key.")
+		return cert, errors.New("Unable to find the appropriate key.")
 	}
 
-	return []byte(cert), nil
+	return cert, nil
 }
 
 // fetchJWKS fetches and parses the JWKS resource from the given URL
@@ -170,10 +180,10 @@ func withPEMHeaders(key string) string {
 
 // parseCerts looks for RSA public keys
 func parseCerts(res *jwks, cacheAge time.Duration) (*Certs, error) {
-	keys := map[string]string{}
+	keys := map[string]Key{}
 	for _, key := range res.Keys {
 		if key.Use == "sig" && key.Kty == "RSA" {
-			keys[key.Kid] = key.X5c[0]
+			keys[key.Kid] = Key(key.X5c[0])
 		}
 	}
 	return &Certs{

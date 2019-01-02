@@ -32,5 +32,7 @@ func main() {
 	}
     // that's your public key
 	fmt.Println(string(key))
+	// you can use an helper function to get it with PEM headers
+	fmt.Println(key.PEM())
 }
 ```
