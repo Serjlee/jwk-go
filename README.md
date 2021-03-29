@@ -13,16 +13,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/serjlee/jwk.go"
+	"github.com/serjlee/jwk-go"
 	"gopkg.in/square/go-jose.v2/jwt"
 )
 
 func main() {
-	token := "your.jwt.token"
-	t, err := jwt.ParseSigned(token)
-	if err != nil {
-		log.Fatal(err)
-	}
 	keys := jwk.JSONWebKeys{
 		JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
 	}
@@ -34,5 +29,12 @@ func main() {
 	fmt.Println(string(key))
 	// you can use an helper function to get it with PEM headers
 	fmt.Println(key.PEM())
+
+	// parse and validate token
+	token := "your.jwt.token"
+	t, err := jwt.ParseSigned(token)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 ```
