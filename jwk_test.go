@@ -2,6 +2,7 @@ package jwk
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -81,6 +82,55 @@ func TestGetKeys(t *testing.T) {
 	if certs != cachedCerts {
 		t.Error("expecting same instance for cached certs")
 	}
+}
+
+func TestGetKeysFromURL(t *testing.T) {
+	j := &JSONWebKeys{
+		JWKURL: "https://login.arduino.cc/.well-known/jwks.json",
+	}
+
+	certs, err := j.GetKeys()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	cachedCerts, err := j.GetKeys()
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if certs != cachedCerts {
+		t.Error("expecting same instance for cached certs")
+	}
+}
+
+func TestFetchKeysConcurrency(t *testing.T) {
+	j := &JSONWebKeys{
+		JWKURL: "https://login.arduino.cc/.well-known/jwks.json",
+	}
+
+	concurrency := 1000
+	startCh := make(chan struct{})
+	var wg sync.WaitGroup
+	wg.Add(concurrency)
+
+	// Spawn all goroutines but make them wait
+	for i := 0; i < concurrency; i++ {
+		go func() {
+			<-startCh
+			j.GetKeys()
+			wg.Done()
+		}()
+	}
+
+	// Unblock them all: this greatly increments the chance of racing
+	for i := 0; i < concurrency; i++ {
+		startCh <- struct{}{}
+	}
+
+	wg.Wait()
 }
 
 func TestWithPemHeaders(t *testing.T) {

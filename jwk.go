@@ -44,6 +44,7 @@ import (
 	"net/http"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -125,15 +126,27 @@ type JSONWebKeys struct {
 
 	// cachedCerts holds the latest fetched certs
 	cachedCerts *Certs
+
+	// certsMutex ensures no data races while reading and storing the JWKs
+	certsMutex sync.RWMutex
 }
 
 // GetKeys returns RSA public keys from the JWK store
 func (j *JSONWebKeys) GetKeys() (*Certs, error) {
-	if j.cachedCerts != nil {
-		if time.Now().Before(j.cachedCerts.Expiry) {
-			return j.cachedCerts, nil
+	// Read from cache when defined and fresh
+	j.certsMutex.RLock()
+	certs := j.cachedCerts
+	j.certsMutex.RUnlock()
+	if certs != nil {
+		if time.Now().Before(certs.Expiry) {
+			return certs, nil
 		}
 	}
+
+	// Fetch and write cache when not
+	j.certsMutex.Lock()
+	defer j.certsMutex.Unlock()
+
 	res, cacheAge, err := j.fetchJWKS()
 	if err != nil {
 		return nil, err
@@ -144,7 +157,6 @@ func (j *JSONWebKeys) GetKeys() (*Certs, error) {
 		return nil, err
 	}
 
-	// cache certs
 	j.cachedCerts = parsedCerts
 
 	return parsedCerts, nil
