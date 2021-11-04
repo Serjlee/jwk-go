@@ -124,6 +124,9 @@ type JSONWebKeys struct {
 	// see https://github.com/auth0/node-jwks-rsa#caching
 	DefaultCacheAge time.Duration
 
+	// Client is the HTTP client used while fetching the certs. If unset it will default to a Client with a 10-seconds timeout
+	Client *http.Client
+
 	// cachedCerts holds the latest fetched certs
 	cachedCerts *Certs
 
@@ -185,7 +188,10 @@ func (j *JSONWebKeys) GetKey(token *jwt.JSONWebToken) (Key, error) {
 
 // fetchJWKS fetches and parses the JWKS resource from the given URL
 func (j *JSONWebKeys) fetchJWKS() (*jwks, time.Duration, error) {
-	resp, err := http.Get(j.JWKURL)
+	if j.Client == nil {
+		j.Client = &http.Client{Timeout: time.Second * 10}
+	}
+	resp, err := j.Client.Get(j.JWKURL)
 	if err != nil {
 		return nil, 0, err
 	}
