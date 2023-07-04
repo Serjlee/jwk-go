@@ -13,27 +13,27 @@
 // 	"log"
 
 // 	"github.com/serjlee/jwk.go"
-// 	"gopkg.in/square/go-jose.v2/jwt"
+// 	"github.com/go-jose/go-jose/v3/jwt"
 // )
 
-// func main() {
-// 	token := "your.jwt.token"
-// 	t, err := jwt.ParseSigned(token)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	keys := jwk.JSONWebKeys{
-// 		JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
-// 	}
-// 	key, err := keys.GetKey(t)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-//  // that's your public key
-// 	fmt.Println(string(key))
-// 	// you can use an helper function to get it with PEM headers
-// 	fmt.Println(key.PEM())
-// }
+//	func main() {
+//		token := "your.jwt.token"
+//		t, err := jwt.ParseSigned(token)
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//		keys := jwk.JSONWebKeys{
+//			JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
+//		}
+//		key, err := keys.GetKey(t)
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//	 // that's your public key
+//		fmt.Println(string(key))
+//		// you can use an helper function to get it with PEM headers
+//		fmt.Println(key.PEM())
+//	}
 package jwk
 
 import (
@@ -47,8 +47,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/pkg/errors"
-	"gopkg.in/square/go-jose.v2/jwt"
 )
 
 // Certs holds a map of KeyID-RSA public key and their expiration time
