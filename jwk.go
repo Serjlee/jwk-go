@@ -25,7 +25,7 @@
 //		keys := jwk.JSONWebKeys{
 //			JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
 //		}
-//		key, err := keys.GetKey(t)
+//		key, err := keys.GetKey(t.Headers[0].KeyID)
 //		if err != nil {
 //			log.Fatal(err)
 //		}
@@ -47,7 +47,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/pkg/errors"
 )
 
@@ -166,20 +165,15 @@ func (j *JSONWebKeys) GetKeys() (*Certs, error) {
 }
 
 // GetCertificate finds a matching cert for the given JWT
-func (j *JSONWebKeys) GetKey(token *jwt.JSONWebToken) (Key, error) {
+func (j *JSONWebKeys) GetKey(keyId string) (Key, error) {
 	var cert Key
 	certs, err := j.GetKeys()
 	if err != nil {
 		return cert, err
 	}
 
-	for _, h := range token.Headers {
-		if key, ok := certs.Keys[h.KeyID]; ok {
-			cert = key
-		}
-	}
-
-	if cert.Empty() {
+	var ok bool
+	if cert, ok = certs.Keys[keyId]; !ok {
 		return cert, errors.New("Unable to find the appropriate key.")
 	}
 

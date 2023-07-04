@@ -6,9 +6,6 @@ import (
 	"testing"
 	"time"
 
-	jose "github.com/go-jose/go-jose/v3"
-	"github.com/go-jose/go-jose/v3/jwt"
-
 	"github.com/pkg/errors"
 )
 
@@ -148,9 +145,10 @@ func TestGetKey(t *testing.T) {
 	}
 	j := JSONWebKeys{cachedCerts: testCerts}
 
-	token := jwt.JSONWebToken{Headers: []jose.Header{jose.Header{KeyID: testKid}}}
-
-	key, err := j.GetKey(&token)
+	key, err := j.GetKey(testKid)
+	if err != nil {
+		t.Fatal(err)
+	}
 	if key.PEM() != withPEMHeaders(testX5c) {
 		t.Fatal(errors.New("token mismatch"))
 	}
