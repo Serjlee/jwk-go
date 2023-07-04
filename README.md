@@ -15,28 +15,26 @@ import (
  "fmt"
  "log"
 
- "github.com/serjlee/jwk-go"
- "github.com/go-jose/go-jose/jwt"
+ "github.com/serjlee/jwk.go"
+ "github.com/go-jose/go-jose/v3/jwt"
 )
 
-func main() {
- keys := jwk.JSONWebKeys{
-  JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
+ func main() {
+  token := "your.jwt.token"
+  t, err := jwt.ParseSigned(token)
+  if err != nil {
+   log.Fatal(err)
+  }
+  keys := jwk.JSONWebKeys{
+   JWKURL: "https://{your-auth0-domain}/.well-known/jwks.json",
+  }
+  key, err := keys.GetKey(t.Headers[0].KeyID)
+  if err != nil {
+   log.Fatal(err)
+  }
+  // that's your public key
+  fmt.Println(string(key))
+  // you can use an helper function to get it with PEM headers
+  fmt.Println(key.PEM())
  }
- key, err := keys.GetKey(t)
- if err != nil {
-  log.Fatal(err)
- }
-    // that's your public key
- fmt.Println(string(key))
- // you can use an helper function to get it with PEM headers
- fmt.Println(key.PEM())
-
- // parse and validate token
- token := "your.jwt.token"
- t, err := jwt.ParseSigned(token)
- if err != nil {
-  log.Fatal(err)
- }
-}
 ```
